@@ -7,9 +7,14 @@ from src.transform.data_transformer import transform_data
 from src.load.parquet_writer import write_parquet
 from src.load.postgres_loader import load_to_postgres
 from src.utils.logger import logger
+import time
 
 
 def main():
+
+    start_time = time.time()
+
+    print("\n🚀 Starting Citi Data Engineering Pipeline...\n")
 
     logger.info("=" * 60)
     logger.info("CITI DATA ENGINEERING PIPELINE STARTED")
@@ -27,19 +32,40 @@ def main():
 
         df = clean_data(df)
 
+        record_count = df.count()
+
         df = transform_data(df)
 
-        # Save cleaned data to S3 as Parquet
         write_parquet(df)
 
-        # Load to PostgreSQL
         load_to_postgres(df)
+
+        execution_time = round(time.time() - start_time, 2)
 
         logger.info("Pipeline completed successfully.")
 
-    except Exception:
+        print("\n" + "=" * 60)
+        print("🎉 PIPELINE EXECUTED SUCCESSFULLY")
+        print("=" * 60)
+        print(f"Records Processed : {record_count}")
+        print("Schema Validation : PASSED")
+        print("Data Quality      : PASSED")
+        print("Output            : S3 (Parquet)")
+        print("Database          : PostgreSQL")
+        print(f"Execution Time    : {execution_time} seconds")
+        print("=" * 60)
+
+    except Exception as e:
 
         logger.exception("Pipeline failed.")
+
+        print("\n" + "=" * 60)
+        print("❌ PIPELINE EXECUTION FAILED")
+        print("=" * 60)
+        print(f"Reason : {e}")
+        print("Check logs/pipeline.log for details.")
+        print("=" * 60)
+
         raise
 
     finally:
