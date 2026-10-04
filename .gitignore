@@ -63,3 +63,4 @@ dist/
 # Local Test Data (Optional)
 # ------------------------------
 data/processed/data/processed/
+.venv-1/
